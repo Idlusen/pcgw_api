@@ -1,0 +1,19 @@
+[project]
+name = "api_pcgw"
+version = "0.1.0"
+description = "Default template for PDM package"
+authors = [
+    {name = "Idlusen", email = "boulanger.m@mailoo.org"},
+]
+dependencies = ["httpx>=0.28.1"]
+requires-python = ">=3.13"
+readme = "README.md"
+license = {text = "MIT"}
+
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+
+[tool.pdm]
+distribution = true
