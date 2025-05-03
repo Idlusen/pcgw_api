@@ -1,6 +1,8 @@
 from enum import Enum
 from typing import Callable, Any
 
+TABLES_INFO_FILENAME = "tables.json"
+
 def parse_list(j: dict, key: str, delimiter: str, post_processing: Callable[[str], Any]) -> list:
     if s := j.get(key):
         l = []

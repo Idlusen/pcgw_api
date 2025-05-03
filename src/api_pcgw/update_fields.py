@@ -5,7 +5,7 @@ from time import sleep
 
 import httpx
 
-from pcgw import TABLES_INFO_FILENAME
+from utils import TABLES_INFO_FILENAME
 
 FORCED_TYPES = {
     'Multiplayer': {

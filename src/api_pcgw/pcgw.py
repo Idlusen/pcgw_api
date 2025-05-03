@@ -4,9 +4,7 @@ from typing import Sequence
 import httpx
 
 import tables
-
-TABLES_INFO_FILENAME = "tables.json"
-
+from utils import TABLES_INFO_FILENAME
 
 class Game:
     def __init__(self, j: dict):
