@@ -12,7 +12,10 @@ class Game:
     def __init__(self, j: dict):
         self.json_data = j
         self.name = j.get('Page')
-        self.id = j.get('PageID')
+        try:
+            self.id = int(j.get('PageID', '') or '')
+        except ValueError:
+            self.id = None
         self.api = tables.API(j)
         self.audio = tables.Audio(j)
         self.availability = tables.Availability(j)
