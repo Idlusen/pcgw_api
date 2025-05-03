@@ -126,3 +126,30 @@ class PCGW:
             elif result.name in page_names:
                 mapped_results[result.name] = result
         return mapped_results
+
+    def get_possible_values(self, attr: str) -> list[str]:
+        found = False
+        field = table = None
+        for table,fields in json.load(open(TABLES_INFO_FILENAME)).items():
+            for field in fields:
+                if field.lower() == attr:
+                    found = True
+                    break
+            if found: break
+        else:
+            return []
+        if not table or not field:
+            return []
+        params = {
+            'action': 'cargoquery',
+            'where' : 'Infobox_game._pageName LIKE "%"',
+            'tables' : ','.join(t for t in set(['Infobox_game', table])),
+            'fields' : f'{table}.{field}',
+            'group_by' : f'{table}.{field}',
+            'format' : 'json',
+        }
+        if table != 'Infobox_game':
+            params['join_on'] = f'Infobox_game._pageID={table}._pageID'
+
+        j = httpx.get(self.API_URL, params=params).json().get('cargoquery', {})
+        return [row.get('title',{}).get(field.replace('_',' ')) for row in j]
