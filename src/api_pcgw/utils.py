@@ -26,11 +26,11 @@ def parse_support_enum(j: dict, key: str):
     value = j.get(key)
     if value in [field.value for field in SupportEnum]:
         new_enum = SupportEnum(value)
-    elif value == 'fakse': # normalize unusual values
+    elif value == 'fakse': # normalize erroneous values
         new_enum = SupportEnum('false')
-    elif value == 'yes': # normalize unusual values
+    elif value == 'yes': # normalize erroneous values
         new_enum = SupportEnum('true')
-    elif value == 'partial': # normalize unusual values
+    elif value == 'partial': # normalize erroneous values
         new_enum = SupportEnum('limited')
     else:
         new_enum = SupportEnum('other value')
@@ -48,4 +48,7 @@ class SupportEnum(Enum):
     COMPLETE = 'complete'
     ALWAYS_ON = 'always on'
     OTHER_VALUE = 'other value'
+    def __init__(self, *args):
+        super().__init__(*args)
+        self.raw_value: str|None = None
 
