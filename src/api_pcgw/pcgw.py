@@ -10,6 +10,7 @@ TABLES_INFO_FILENAME = "tables.json"
 
 class Game:
     def __init__(self, j: dict):
+        self.json_data = j
         self.name = j.get('Page')
         self.id = j.get('PageID')
         self.api = tables.API(j)

@@ -52,14 +52,33 @@ def get_table_fields(table):
     }
     j = httpx.get(url, params=params).json()
 
-    return [Field(k,v,table) for k,v in j.get('cargofields', {}).items()
-                        if k[0].isalpha()]
+    fields = []
+    for k,v in j.get('cargofields', {}).items():
+        if k[0].isalpha():
+            new_field = Field(k,v,table)
+
+            if not new_field.is_list and new_field.type == 'str':
+                params['action'] = 'cargoquery'
+                params['where'] = 'Infobox_game._pageName LIKE "%"'
+                params['tables'] = ','.join(t for t in set(['Infobox_game', table]))
+                params['fields'] = f'{table}.{k}'
+                if table != 'Infobox_game':
+                    params['join_on'] = f'Infobox_game._pageID={table}._pageID'
+                params['group_by'] = f'{table}.{k}'
+
+                j = httpx.get(url, params=params).json().get('cargoquery', {})
+                possible_values = [row.get('title',{}).get(new_field.key,'null') or 'null' for row in j]
+                if set(possible_values).issubset({'null','unknown','n/a','false','limited','hackable','true','complete','always on'}):
+                    new_field.type = 'SupportEnum'
+
+            fields.append(new_field)
+    return fields
 
 python_tables_txt = '''
 import datetime
 from typing import Any
 
-from utils import parse_list, parse_value
+from utils import parse_list, parse_value, parse_support_enum, SupportEnum
 '''
 
 j = {}
@@ -93,6 +112,8 @@ class {table}:
         else:
             if field.type == 'str':
                 python_tables_txt += ' '*8 + f'self.{field.name}: {field.type}|None = j.get("{field.key}")\n'
+            elif field.type == 'SupportEnum':
+                python_tables_txt += ' '*8 + f'self.{field.name}: {field.type} = parse_support_enum(j, "{field.key}")\n'
             else:
                 python_tables_txt += ' '*8 + f'self.{field.name}: {field.type}|None = parse_value(j, "{field.key}", {field.post_processing})\n'
     sleep(.5)
