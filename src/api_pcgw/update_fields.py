@@ -12,7 +12,21 @@ FORCED_TYPES = {
         'Local players': {'type':'int', 'post_processing':'int'},
         'LAN players': {'type':'int', 'post_processing':'int'},
         'Online players': {'type':'int', 'post_processing':'int'},
-    }
+    },
+    'Cloud': {
+        'Steam': {'type': 'SupportEnum', 'post_processing': ''},
+    },
+    'Input': {
+        'Controller support level': {'type': 'SupportEnum', 'post_processing': ''},
+        'Controller hotplugging': {'type': 'SupportEnum', 'post_processing': ''},
+    },
+    'Video': {
+        'Anisotropic filtering': {'type': 'SupportEnum', 'post_processing': ''},
+        'Antialiasing': {'type': 'SupportEnum', 'post_processing': ''},
+    },
+    'XDG': {
+        'Supported': {'type': 'SupportEnum', 'post_processing': ''},
+    },
 }
 
 PYTHON_TABLES_FILENAME = "tables.py"

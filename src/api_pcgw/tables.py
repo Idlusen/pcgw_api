@@ -119,7 +119,7 @@ class Cloud:
         self.gog_galaxy: SupportEnum = parse_support_enum(j, "GOG Galaxy")
         self.ea_app: SupportEnum = parse_support_enum(j, "EA app")
         self.onedrive: SupportEnum = parse_support_enum(j, "OneDrive")
-        self.steam: str|None = j.get("Steam")
+        self.steam: SupportEnum = parse_support_enum(j, "Steam")
         self.ubisoft_connect: SupportEnum = parse_support_enum(j, "Ubisoft Connect")
         self.xbox: SupportEnum = parse_support_enum(j, "Xbox")
 
@@ -185,7 +185,7 @@ class Input:
         self.touchscreen: SupportEnum = parse_support_enum(j, "Touchscreen")
         self.controller_support: SupportEnum = parse_support_enum(j, "Controller support")
         self.full_controller_support: SupportEnum = parse_support_enum(j, "Full controller support")
-        self.controller_support_level: str|None = j.get("Controller support level")
+        self.controller_support_level: SupportEnum = parse_support_enum(j, "Controller support level")
         self.controller_remapping: SupportEnum = parse_support_enum(j, "Controller remapping")
         self.controller_sensitivity: SupportEnum = parse_support_enum(j, "Controller sensitivity")
         self.controller_y_axis_inversion: SupportEnum = parse_support_enum(j, "Controller Y axis inversion")
@@ -205,7 +205,7 @@ class Input:
         self.tracked_motion_controller_prompts: SupportEnum = parse_support_enum(j, "Tracked motion controller prompts")
         self.other_controller_support: SupportEnum = parse_support_enum(j, "Other controller support")
         self.other_button_prompts: list[str] = parse_list(j, "Other button prompts", ",", str)
-        self.controller_hotplugging: str|None = j.get("Controller hotplugging")
+        self.controller_hotplugging: SupportEnum = parse_support_enum(j, "Controller hotplugging")
         self.input_prompt_override: SupportEnum = parse_support_enum(j, "Input prompt override")
         self.controller_haptic_feedback: SupportEnum = parse_support_enum(j, "Controller haptic feedback")
         self.simultaneous_input: SupportEnum = parse_support_enum(j, "Simultaneous input")
@@ -311,8 +311,8 @@ class Video:
         self.field_of_view: SupportEnum = parse_support_enum(j, "Field of view")
         self.windowed: SupportEnum = parse_support_enum(j, "Windowed")
         self.borderless_fullscreen_windowed: SupportEnum = parse_support_enum(j, "Borderless fullscreen windowed")
-        self.anisotropic_filtering: str|None = j.get("Anisotropic filtering")
-        self.antialiasing: str|None = j.get("Antialiasing")
+        self.anisotropic_filtering: SupportEnum = parse_support_enum(j, "Anisotropic filtering")
+        self.antialiasing: SupportEnum = parse_support_enum(j, "Antialiasing")
         self.upscaling: list[str] = parse_list(j, "Upscaling", ",", str)
         self.vsync: SupportEnum = parse_support_enum(j, "Vsync")
         self.hdr: SupportEnum = parse_support_enum(j, "HDR")
@@ -321,4 +321,4 @@ class Video:
 
 class XDG:
     def __init__(self, j):
-        self.supported: str|None = j.get("Supported")
+        self.supported: SupportEnum = parse_support_enum(j, "Supported")
