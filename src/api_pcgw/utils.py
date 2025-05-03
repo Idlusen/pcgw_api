@@ -24,20 +24,20 @@ def parse_value(j: dict, key: str, post_processing: Callable[[str], Any]) -> Any
 
 def parse_support_enum(j: dict, key: str):
     value = j.get(key)
-    if value in [field.value for field in SupportEnum]:
-        new_enum = SupportEnum(value)
+    if value in [field.value for field in Support]:
+        new_enum = Support(value)
     elif value == 'fakse': # normalize erroneous values
-        new_enum = SupportEnum('false')
+        new_enum = Support('false')
     elif value == 'yes': # normalize erroneous values
-        new_enum = SupportEnum('true')
+        new_enum = Support('true')
     elif value == 'partial': # normalize erroneous values
-        new_enum = SupportEnum('limited')
+        new_enum = Support('limited')
     else:
-        new_enum = SupportEnum('other value')
+        new_enum = Support('other value')
     new_enum.raw_value = value
     return new_enum
 
-class SupportEnum(Enum):
+class Support(Enum):
     NULL = None
     UNKNOWN = 'unknown'
     NA = 'n/a'

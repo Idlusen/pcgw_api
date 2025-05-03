@@ -14,18 +14,18 @@ FORCED_TYPES = {
         'Online players': {'type':'int', 'post_processing':'int'},
     },
     'Cloud': {
-        'Steam': {'type': 'SupportEnum', 'post_processing': ''},
+        'Steam': {'type': 'Support', 'post_processing': ''},
     },
     'Input': {
-        'Controller support level': {'type': 'SupportEnum', 'post_processing': ''},
-        'Controller hotplugging': {'type': 'SupportEnum', 'post_processing': ''},
+        'Controller support level': {'type': 'Support', 'post_processing': ''},
+        'Controller hotplugging': {'type': 'Support', 'post_processing': ''},
     },
     'Video': {
-        'Anisotropic filtering': {'type': 'SupportEnum', 'post_processing': ''},
-        'Antialiasing': {'type': 'SupportEnum', 'post_processing': ''},
+        'Anisotropic filtering': {'type': 'Support', 'post_processing': ''},
+        'Antialiasing': {'type': 'Support', 'post_processing': ''},
     },
     'XDG': {
-        'Supported': {'type': 'SupportEnum', 'post_processing': ''},
+        'Supported': {'type': 'Support', 'post_processing': ''},
     },
 }
 
@@ -83,7 +83,7 @@ def get_table_fields(table):
                 j = httpx.get(url, params=params).json().get('cargoquery', {})
                 possible_values = [row.get('title',{}).get(new_field.key,'null') or 'null' for row in j]
                 if set(possible_values).issubset({'null','unknown','n/a','false','limited','hackable','true','complete','always on'}):
-                    new_field.type = 'SupportEnum'
+                    new_field.type = 'Support'
 
             fields.append(new_field)
     return fields
@@ -92,7 +92,7 @@ python_tables_txt = '''
 import datetime
 from typing import Any
 
-from utils import parse_list, parse_value, parse_support_enum, SupportEnum
+from utils import parse_list, parse_value, parse_support_enum, Support
 '''
 
 j = {}
@@ -126,7 +126,7 @@ class {table}:
         else:
             if field.type == 'str':
                 python_tables_txt += ' '*8 + f'self.{field.name}: {field.type}|None = j.get("{field.key}")\n'
-            elif field.type == 'SupportEnum':
+            elif field.type == 'Support':
                 python_tables_txt += ' '*8 + f'self.{field.name}: {field.type} = parse_support_enum(j, "{field.key}")\n'
             else:
                 python_tables_txt += ' '*8 + f'self.{field.name}: {field.type}|None = parse_value(j, "{field.key}", {field.post_processing})\n'
