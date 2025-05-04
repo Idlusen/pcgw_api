@@ -20,6 +20,11 @@ FORCED_TYPES = {
         'Controller support level': {'type': 'Support', 'post_processing': ''},
         'Controller hotplugging': {'type': 'Support', 'post_processing': ''},
     },
+    'L10n': {
+        'Interface': {'type': 'Support', 'post_processing': ''},
+        'Audio': {'type': 'Support', 'post_processing': ''},
+        'Subtitles': {'type': 'Support', 'post_processing': ''},
+    },
     'Video': {
         'Anisotropic filtering': {'type': 'Support', 'post_processing': ''},
         'Antialiasing': {'type': 'Support', 'post_processing': ''},

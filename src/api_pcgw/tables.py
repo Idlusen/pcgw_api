@@ -225,9 +225,9 @@ class L10n:
     def __init__(self, j):
         self.language: str|None = j.get("Language")
         self.status: str|None = j.get("Status")
-        self.interface: str|None = j.get("Interface")
-        self.audio: str|None = j.get("Audio")
-        self.subtitles: str|None = j.get("Subtitles")
+        self.interface: Support = parse_support_enum(j, "Interface")
+        self.audio: Support = parse_support_enum(j, "Audio")
+        self.subtitles: Support = parse_support_enum(j, "Subtitles")
         self.notes: str|None = j.get("Notes")
 
 class Middleware:
