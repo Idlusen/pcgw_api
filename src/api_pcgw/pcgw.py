@@ -7,8 +7,9 @@ import tables
 from utils import TABLES_INFO_FILENAME
 
 class Game:
-    def __init__(self, j: dict):
+    def __init__(self, j: dict, api_client: "PCGW|None" = None):
         self.json_data = j
+        self.api_client: PCGW|None = api_client
         self.name = j.get('Page')
         try:
             self.id = int(j.get('PageID', '') or '')
@@ -26,6 +27,30 @@ class Game:
         self.vr_support = tables.VR_support(j)
         self.video = tables.Video(j)
         self.xdg = tables.XDG(j)
+        self.languages = []
+        self.engines = []
+
+    def get_association_table(self, table: str, attr: str) -> bool:
+        if self.api_client:
+            tables_info = {k:v for k,v in json.load(open(TABLES_INFO_FILENAME)).items()}
+            params = {
+                'action' : 'cargoquery',
+                'where'  : f'Infobox_game._pageName="{self.name}"',
+                'tables' : f'Infobox_game,{table}',
+                'join_on': f'Infobox_game._pageID={table}._pageID',
+                'fields' : ','.join(f'{table}.{field}' for field in tables_info.get(table,[])),
+                'format' : 'json',
+            }
+            response = self.api_client.http_client.get(self.api_client.API_URL, params=params).json()
+            setattr(self, attr, [getattr(tables, table)(j.get('title', {})) for j in response.get('cargoquery', [])])
+            return True
+        return False
+
+    def get_languages(self) -> bool:
+        return self.get_association_table('L10n', 'languages')
+
+    def get_engines(self) -> bool:
+        return self.get_association_table('Infobox_game_engine', 'engines')
 
     def __str__(self):
         if self.name:
@@ -63,7 +88,7 @@ class PCGW:
         }
     
     def _handle_search_response(self, response: dict) -> list[Game]:
-        return [Game(j.get('title', {})) for j in response.get('cargoquery', [])]
+        return [Game(j.get('title', {}), self) for j in response.get('cargoquery', [])]
 
     def search(self, query: str) -> list[Game]:
         return self._handle_search_response(self.http_client.post(
@@ -103,7 +128,7 @@ class PCGW:
         response = self.http_client.post(self.API_URL, data=params).json()
         results = [j['title'] for j in response.get('cargoquery', []) if 'title' in j]
         if results:
-            return Game(results[0])
+            return Game(results[0], self)
 
     def get_games(self, page_ids: Sequence[int] = [],
                         page_names: Sequence[str] = []) -> dict[int|str, Game]:
@@ -119,7 +144,7 @@ class PCGW:
             'format' : 'json',
         }
         response = self.http_client.get(self.API_URL, params=params).json()
-        results = [Game(j['title']) for j in response.get('cargoquery', []) if 'title' in j]
+        results = [Game(j['title'], self) for j in response.get('cargoquery', []) if 'title' in j]
         mapped_results = {}
         for result in results:
             if result.id in page_ids:
