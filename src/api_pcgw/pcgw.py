@@ -242,8 +242,7 @@ class PCGW:
         Returns:
             A dictionary with the page_ids and page_names from the parameters
             as keys and the corresponding Game objects as values. The value is 
-            None if the game could not be found in the results in the request
-            response.
+            None if the game could not be found in the request response.
         """
         if not page_ids and not page_names:
             return {}
@@ -273,6 +272,16 @@ class PCGW:
         return mapped_results
 
     def get_possible_values(self, attr: str) -> list[str]:
+        """
+        Get the set of possible values in the PCGamingWiki database 
+        for a given field.
+
+        Parameters:
+            attr: name of an attribute of a class from the tables module.
+        
+        Returns:
+            The list of possible values for the given attribute.
+        """
         found = False
         field = table = None
         for table,fields in json.load(open(TABLES_INFO_FILENAME)).items():
