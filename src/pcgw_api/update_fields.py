@@ -5,7 +5,7 @@ from time import sleep
 
 import httpx
 
-from utils import TABLES_INFO_FILENAME
+from pcgw_api.utils import TABLES_INFO_FILENAME
 
 FORCED_TYPES = {
     'Multiplayer': {
@@ -97,7 +97,7 @@ python_tables_txt = '''
 import datetime
 from typing import Any
 
-from utils import parse_list, parse_value, parse_support_enum, Support
+from pcgw_api.utils import parse_list, parse_value, parse_support_enum, Support
 '''
 
 j = {}

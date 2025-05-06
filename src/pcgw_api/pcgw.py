@@ -3,8 +3,8 @@ from typing import Sequence
 
 import httpx
 
-import tables
-from utils import TABLES_INFO_FILENAME
+import pcgw_api.tables as tables
+from pcgw_api.utils import TABLES_INFO_FILENAME
 
 class Game:
     """

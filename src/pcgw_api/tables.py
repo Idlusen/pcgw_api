@@ -2,7 +2,7 @@
 import datetime
 from typing import Any
 
-from utils import parse_list, parse_value, parse_support_enum, Support
+from pcgw_api.utils import parse_list, parse_value, parse_support_enum, Support
 
 class API:
     def __init__(self, j):

@@ -1,7 +1,7 @@
 [project]
-name = "api_pcgw"
+name = "pcgw_api"
 version = "0.1.0"
-description = "Default template for PDM package"
+description = "Client for the PCGamingWiki API"
 authors = [
     {name = "Idlusen", email = "boulanger.m@mailoo.org"},
 ]

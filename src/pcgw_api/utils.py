@@ -1,7 +1,8 @@
 from enum import Enum
+import os
 from typing import Callable, Any
 
-TABLES_INFO_FILENAME = "tables.json"
+TABLES_INFO_FILENAME = os.path.join(os.path.dirname(__file__), "tables.json")
 
 def parse_list(j: dict, key: str, delimiter: str, post_processing: Callable[[str], Any]) -> list:
     """
