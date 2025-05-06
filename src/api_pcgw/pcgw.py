@@ -261,6 +261,10 @@ class PCGW:
         response = self.http_client.post(self.API_URL, data=params).json()
         results = [Game(j['title'], self) for j in response.get('cargoquery', []) if 'title' in j]
         mapped_results = {}
+        for k in page_ids:
+            mapped_results[k] = None
+        for k in page_names:
+            mapped_results[k] = None
         for result in results:
             if result.id in page_ids:
                 mapped_results[result.id] = result
