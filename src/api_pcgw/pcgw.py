@@ -7,9 +7,46 @@ import tables
 from utils import TABLES_INFO_FILENAME
 
 class Game:
-    def __init__(self, j: dict, api_client: "PCGW|None" = None):
+    """
+    Represents the information of a PCGamingWiki game page.
+
+    Centralizes the information about a PCGamingWiki game page
+    fetched from the API and deserialized by the classes from the
+    tables module.
+
+    Attributes:
+        json_data: data before deserialization.
+        pcgw_client: API client class to optionnally fetch data from association
+                     tables after initialization.
+        name: name of the game.
+        id: id of the game page.
+        api: information about the API used by the game.
+        audio: audio-relative information about the game.
+        availability: information about the availability of the game.
+        cloud: information about the cloud possibilities (saves) of the game.
+        infobox: general information about the game.
+        input: input-relative information about the game.
+        middleware: information about the middleware used by the game.
+        multiplayer: information about the multiplayer aspects of the game.
+        tags: various information about the game entered as tags in PCGamingWiki.
+        vr_support: information about the Virtual Reality capabilities of the game.
+        video: information about the game relative to video rendering.
+        xdg: information about the XDG standard support of the game.
+        languages: list of languages supported by the game.
+        engines: list of engines used by the game.
+    """
+    def __init__(self, j: dict, pcgw_client: "PCGW|None" = None):
+        """
+        Constructor for a Game.
+
+        Parameters:
+            j: data to deserialize by the classes from the tables module,
+                typically a json response from the API.
+            pcgw_client: API client class to optionnally fetch data from
+                         association tables later.
+        """
         self.json_data = j
-        self.api_client: PCGW|None = api_client
+        self.pcgw_client: PCGW|None = pcgw_client
         self.name = j.get('Page')
         try:
             self.id = int(j.get('PageID', '') or '')
@@ -31,7 +68,14 @@ class Game:
         self.engines = []
 
     def get_association_table(self, table: str, attr: str) -> bool:
-        if self.api_client:
+        """
+        Generic function to fetch list elements corresponding to an association
+        table in the PCGamingWiki database, with unnormalized rows like
+        (<Game name>, <Table info 1>, <Table info 2>…), and populate the
+        corresponding attribute.
+        The boolean returned indicates the success of the request.
+        """
+        if self.pcgw_client:
             tables_info = {k:v for k,v in json.load(open(TABLES_INFO_FILENAME)).items()}
             params = {
                 'action' : 'cargoquery',
@@ -41,15 +85,23 @@ class Game:
                 'fields' : ','.join(f'{table}.{field}' for field in tables_info.get(table,[])),
                 'format' : 'json',
             }
-            response = self.api_client.http_client.get(self.api_client.API_URL, params=params).json()
+            response = self.pcgw_client.http_client.get(self.pcgw_client.API_URL, params=params).json()
             setattr(self, attr, [getattr(tables, table)(j.get('title', {})) for j in response.get('cargoquery', [])])
             return True
         return False
 
     def get_languages(self) -> bool:
+        """
+        Populates the languages attribute with the list elements corresponding
+        to the association table "L10n" in the PCGamingWiki database.
+        """
         return self.get_association_table('L10n', 'languages')
 
     def get_engines(self) -> bool:
+        """
+        Populates the engines attribute with the list elements corresponding
+        to the association table "Infobox_game_engine" in the PCGamingWiki database.
+        """
         return self.get_association_table('Infobox_game_engine', 'engines')
 
     def __str__(self):
@@ -60,6 +112,14 @@ class Game:
 
 
 class PCGW:
+    """
+    Main class interacting with the PCGamingWiki API.
+
+    Attributes:
+        API_URL: the URL of the PCGamingWiki API.
+        http_client: httpx client used for synchronous requests.
+        async_http_client: httpx client used for asynchronous requests.
+    """
     API_URL = "https://www.pcgamingwiki.com/w/api.php"
 
     def __init__(self):
@@ -91,12 +151,36 @@ class PCGW:
         return [Game(j.get('title', {}), self) for j in response.get('cargoquery', [])]
 
     def search(self, query: str) -> list[Game]:
+        """
+        Searches PCGamingWiki.
+
+        The search returns the games with name containing the query string,
+        the API request using the SQL LIKE operator.
+
+        Parameters:
+            query: query string.
+
+        Returns:
+            A list of results deserialized into Game objects.
+        """
         return self._handle_search_response(self.http_client.post(
                                             self.API_URL,
                                             data=self._build_search_request(query))
                                     .json())
 
     async def async_search(self, query: str) -> list[Game]:
+        """
+        Searches PCGamingWiki, asynchronous version.
+
+        The search returns the games with name containing the query string,
+        the API request using the SQL LIKE operator.
+
+        Parameters:
+            query: query string.
+
+        Returns:
+            A list of results deserialized into Game objects.
+        """
         return self._handle_search_response((await self.async_http_client.get(
                                                 self.API_URL,
                                                 params=self._build_search_request(query))
@@ -106,6 +190,22 @@ class PCGW:
                           page_name: str|None = None,
                           gog_id: int|None = None,
                           steam_id: int|None = None) -> Game|None:
+        """
+        Get information about a game from PCGamingWiki.
+
+        The function uses only one parameter among page_id, page_name, gog_id
+        and steam_id: if more than one is specified, it will use the first in
+        the order of the parameters list.
+
+        Parameters:
+            page_id: ID of a PCGamingWiki page.
+            page_name: name of a PCGamingWiki page.
+            gog_id: ID of a GOG.com game.
+            steam_id: AppID of a Steam game.
+
+        Returns:
+            A Game object or None if the request went wrong.
+        """
         if not page_id and not page_name and not gog_id and not steam_id:
             return None
         else:
@@ -114,7 +214,7 @@ class PCGW:
             elif page_name:
                 req_where = f'Infobox_game._pageName="{page_name}"'
             elif gog_id:
-                req_where = f'Infobox_game.GOGcom_ID = "{gog_id}"'
+                req_where = f'Infobox_game.GOGcom_ID HOLDS "{gog_id}"'
             else:
                 req_where = f'Infobox_game.Steam_AppID HOLDS "{steam_id}"',
         params = {
@@ -132,6 +232,21 @@ class PCGW:
 
     def get_games(self, page_ids: Sequence[int] = [],
                         page_names: Sequence[str] = []) -> dict[int|str, Game]:
+        """
+        Get information about multiple games from PCGamingWiki in one request.
+
+        Parameters:
+            page_ids: sequence of IDs of PCGamingWiki pages.
+            page_names: sequence of names of PCGamingWiki pages.
+
+        Returns:
+            A dictionary with the page_ids and page_names from the parameters
+            as keys and the corresponding Game objects as values. The value is 
+            None if the game could not be found in the results in the request
+            response.
+        """
+        if not page_ids and not page_names:
+            return {}
         params = {
             'action': 'cargoquery',
             'where' : ' OR '.join(
