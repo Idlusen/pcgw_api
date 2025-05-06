@@ -181,9 +181,9 @@ class PCGW:
         Returns:
             A list of results deserialized into Game objects.
         """
-        return self._handle_search_response((await self.async_http_client.get(
+        return self._handle_search_response((await self.async_http_client.post(
                                                 self.API_URL,
-                                                params=self._build_search_request(query))
+                                                data=self._build_search_request(query))
                                    ).json())
 
     def get_game(self, *, page_id: int|None = None,
@@ -258,7 +258,7 @@ class PCGW:
             'fields' : ','.join(self._game_req_fields),
             'format' : 'json',
         }
-        response = self.http_client.get(self.API_URL, params=params).json()
+        response = self.http_client.post(self.API_URL, data=params).json()
         results = [Game(j['title'], self) for j in response.get('cargoquery', []) if 'title' in j]
         mapped_results = {}
         for result in results:
