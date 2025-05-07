@@ -42,7 +42,7 @@ class Game:
         Parameters:
             j: data to deserialize by the classes from the tables module,
                 typically a json response from the API.
-            pcgw_client: API client class to optionnally fetch data from
+            pcgw_client: API client class to optionally fetch data from
                          association tables later.
         """
         self.json_data = j
