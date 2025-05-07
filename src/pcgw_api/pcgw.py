@@ -67,15 +67,14 @@ class Game:
         self.languages = []
         self.engines = []
 
-    def get_association_table(self, table: str, attr: str) -> bool:
+    def _get_association_table(self, table: str, attr: str) -> list:
         """
         Generic function to fetch list elements corresponding to an association
         table in the PCGamingWiki database, with unnormalized rows like
-        (<Game name>, <Table info 1>, <Table info 2>…), and populate the
+        (<Game name>, <Table info 1>, <Table info 2>…). Populates and returns the
         corresponding attribute.
-        The boolean returned indicates the success of the request.
         """
-        if self.pcgw_client:
+        if not getattr(self,attr) and self.pcgw_client:
             tables_info = {k:v for k,v in json.load(open(TABLES_INFO_FILENAME)).items()}
             params = {
                 'action' : 'cargoquery',
@@ -87,22 +86,21 @@ class Game:
             }
             response = self.pcgw_client.http_client.get(self.pcgw_client.API_URL, params=params).json()
             setattr(self, attr, [getattr(tables, table)(j.get('title', {})) for j in response.get('cargoquery', [])])
-            return True
-        return False
+        return getattr(self, attr)
 
-    def get_languages(self) -> bool:
+    def get_languages(self) -> list[tables.L10n]:
         """
-        Populates the languages attribute with the list elements corresponding
+        Populates and returns the languages attribute with the list elements corresponding
         to the association table "L10n" in the PCGamingWiki database.
         """
-        return self.get_association_table('L10n', 'languages')
+        return self._get_association_table('L10n', 'languages')
 
-    def get_engines(self) -> bool:
+    def get_engines(self) -> list[tables.Infobox_game_engine]:
         """
-        Populates the engines attribute with the list elements corresponding
+        Populates and returns the engines attribute with the list elements corresponding
         to the association table "Infobox_game_engine" in the PCGamingWiki database.
         """
-        return self.get_association_table('Infobox_game_engine', 'engines')
+        return self._get_association_table('Infobox_game_engine', 'engines')
 
     def __str__(self):
         if self.name:
