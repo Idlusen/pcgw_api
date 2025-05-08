@@ -1,6 +1,6 @@
 [project]
 name = "pcgw_api"
-version = "0.1.1"
+version = "0.1.2"
 description = "Client for the PCGamingWiki API"
 authors = [
     {name = "Idlusen", email = "boulanger.m@mailoo.org"},
@@ -8,7 +8,7 @@ authors = [
 dependencies = ["httpx>=0.28.1"]
 requires-python = ">=3.13"
 readme = "README.md"
-license = {text = "MIT"}
+license = {text = "LGPL-2.1"}
 
 [build-system]
 requires = ["pdm-backend"]
