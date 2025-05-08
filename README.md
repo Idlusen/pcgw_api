@@ -1,7 +1,6 @@
 # pcgw_api: Python client for the PCGamingWiki API
 
 # Installation
-Note: the package is not yet on PyPI, when it will you will be able to install with:
 ```
 pip install pcgw_api
 ```
