@@ -269,29 +269,24 @@ class PCGW:
                 mapped_results[result.name] = result
         return mapped_results
 
-    def get_possible_values(self, attr: str) -> list[str]:
+    def get_possible_values(self, table: str, attr: str) -> list[str]:
         """
-        Get the set of possible values in the PCGamingWiki database 
+        Get the list of possible values in the PCGamingWiki database 
         for a given field.
 
         Parameters:
-            attr: name of an attribute of a class from the tables module.
+            table: name of a class from the tables module.
+            attr: name of an attribute of the class identified by the table parameter.
         
         Returns:
-            The list of possible values for the given attribute.
+            The list of possible values for the given field.
         """
-        found = False
-        field = table = None
-        for table,fields in json.load(open(TABLES_INFO_FILENAME)).items():
-            for field in fields:
-                if field.lower() == attr:
-                    found = True
-                    break
-            if found: break
+        tables = json.load(open(TABLES_INFO_FILENAME))
+        for field in tables.get(table, []):
+            if field.lower() == attr:
+                break
         else:
-            return []
-        if not table or not field:
-            return []
+            field = attr
         params = {
             'action': 'cargoquery',
             'where' : 'Infobox_game._pageName LIKE "%"',
