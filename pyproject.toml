@@ -1,6 +1,6 @@
 [project]
 name = "pcgw_api"
-version = "0.1.2"
+version = "0.2.0"
 description = "Client for the PCGamingWiki API"
 authors = [
     {name = "Idlusen", email = "boulanger.m@mailoo.org"},
