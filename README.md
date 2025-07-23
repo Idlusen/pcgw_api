@@ -20,6 +20,8 @@ requests to get interesting information.
 There is also `PCGW.async_search` should you need an asynchronous version.
 
 ## Fetching data
+
+### Data already present
 The above search function returns `Game` objects, which have all the information from the 
 tables of the PCGamingWiki database. The tables are accessible as attributes:
 ```python
@@ -28,8 +30,9 @@ print(cuphead.infobox.genres)
 print(cuphead.availability.available_from)
 print(cuphead.multiplayer.local_players)
 ```
-See `tables.py` for the full list of available fields.
+See [`tables.py`](https://github.com/Idlusen/pcgw_api/blob/main/src/pcgw_api/tables.py) for the full list of available fields.
 
+### Specific types
 Dates are parsed as `datetime` python objects and fields indicating the support of the game
 for a feature are generally parsed into a `Support` enum object:
 ```python
@@ -44,14 +47,15 @@ print(bool(cuphead.input.controller_support)) # True
 if cuphead.input.controller_support:
   print("This will be printed")
 ```
-
-Language and engine information require additionnal requests to fetch the data:
+### Data needing more requests
+Language and engine information require additionnal requests to fetch the data, it is fetched on the first call to `Game.get_languages` or `Game.get_engines` and then cached:
 ```python
-# the data is fetched on the first call to Game.get_languages/engines
-print('\n'.join(f'{l.language} audio:{l.audio} subtitles:{l.subtitles}' for l in cuphead.get_languages()))
+for l in cuphead.get_languages():
+  print(f'{l.language} audio:{l.audio} subtitles:{l.subtitles}')
 print(', '.join(e.engine for e in cuphead.get_engines()))
 ```
 
+### Fetching game information by ID
 It is possible to request specific games with `PCGW.get_game` or `PCGW.get_games`:
 ```python
 print(client.get_game(page_id=63516).name) # Cuphead
@@ -62,13 +66,17 @@ results = client.get_games(page_names=("Fez", "Limbo", "notagame"))
 print(results["Fez"].name) # Fez
 print(results["notagame"]) # None
 ```
+`get_games` uses a single HTTP request.
 `get_games` accepts the parameters `page_ids` and `page_names` and returns a dictionary
 with these identifiers as keys to the resulting `Game` objects. Fetching multiple games
 at a time with steam or gog ids is not supported as these ids can actually refer to
 more than one PCGamingWiki page.
 
-It is possible to retrieve the set of values of a given field in the database:
+### Helper functions
+It is possible to retrieve the set of values of a given table/field pair in the database:
 ```python
-print(client.get_possible_values('themes'))
-print(client.get_possible_values('available_on'))
+print(client.get_possible_values('Infobox_game', 'themes'))
+print(client.get_possible_values('Infobox_game', 'available_on'))
+print(client.get_possible_values('Input', 'other_button_prompts'))
+print(client.get_possible_values('L10n', 'language'))
 ```
